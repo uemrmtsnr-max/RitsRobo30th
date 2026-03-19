@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>管理画面 | 立命館大学ロボティクス学科 創立30周年記念イベント</title>
+    <meta name="description" content="参加登録情報を確認するための管理画面です。" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/config.js"></script>
+    <script type="module" src="./assets/site.js"></script>
+  </head>
+  <body class="site-shell" data-page="admin">
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">30</div>
+          <div class="brand-copy">
+            <span class="brand-name" data-event-name>立命館大学ロボティクス学科 創立30周年記念イベント</span>
+            <span class="brand-sub">管理画面</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="主要ナビゲーション">
+          <a data-nav="home" href="./index.html">トップ</a>
+          <a data-nav="register" href="./register.html">参加登録</a>
+          <a data-nav="donate" href="./donate.html">寄付案内</a>
+          <a data-nav="admin" href="./admin.html">管理画面</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="container">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h1 class="section-title">参加登録の管理</h1>
+              <p class="section-note">
+                管理者アカウントでログインすると、登録情報を閲覧できます。一般公開はしません。
+              </p>
+            </div>
+          </div>
+          <div id="admin-status" class="status hidden" role="status" aria-live="polite"></div>
+        </section>
+
+        <section id="admin-login-card" class="panel">
+          <h2 class="panel-title">ログイン</h2>
+          <p style="margin-top: 12px;">Supabase Auth に登録した管理者アカウントでサインインしてください。</p>
+          <form id="admin-login-form" class="form-grid" style="margin-top: 18px; max-width: 520px;">
+            <div class="field">
+              <label for="admin-email">メールアドレス</label>
+              <input id="admin-email" type="email" autocomplete="username" placeholder="admin@example.com" />
+            </div>
+            <div class="field">
+              <label for="admin-password">パスワード</label>
+              <input id="admin-password" type="password" autocomplete="current-password" placeholder="パスワード" />
+            </div>
+            <button class="button" type="submit">ログイン</button>
+          </form>
+        </section>
+
+        <section id="admin-panel" class="section panel" hidden>
+          <div class="admin-toolbar">
+            <div class="toolbar-group">
+              <h2 class="panel-title" style="margin-right: 8px;">登録一覧</h2>
+              <input id="admin-filter" type="search" placeholder="氏名、所属、メールで絞り込み" />
+            </div>
+            <div class="toolbar-group">
+              <button id="reload-registrations" class="button-secondary" type="button">再読み込み</button>
+              <button id="export-csv" class="button-secondary" type="button">CSV 出力</button>
+              <button id="sign-out" class="button-ghost" type="button">サインアウト</button>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 18px;">
+            <div class="stat">
+              <div class="stat-label">総登録数</div>
+              <div id="stat-total" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">会場参加</div>
+              <div id="stat-inperson" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">オンライン</div>
+              <div id="stat-online" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">その他</div>
+              <div id="stat-other" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">本日の登録</div>
+              <div id="stat-today" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">確認範囲</div>
+              <div class="stat-value">管理者のみ</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>受付日時</th>
+                  <th>氏名</th>
+                  <th>所属</th>
+                  <th>Email</th>
+                  <th>電話番号</th>
+                  <th>参加方法</th>
+                  <th>配慮事項</th>
+                  <th>メッセージ</th>
+                  <th>同意</th>
+                </tr>
+              </thead>
+              <tbody id="registration-table-body"></tbody>
+            </table>
+          </div>
+          <div id="table-empty" class="callout" style="margin-top: 16px;" hidden>
+            <p>まだ登録はありません。</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>© <span data-year></span> 立命館大学ロボティクス学科 創立30周年記念イベント</div>
+        <div>お問い合わせ: <a data-contact-email-link href="mailto:robotics30th@example.ac.jp"><span data-contact-email>robotics30th@example.ac.jp</span></a></div>
+      </div>
+    </footer>
+  </body>
+</html>

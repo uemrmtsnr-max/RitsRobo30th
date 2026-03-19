@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>参加登録 | 立命館大学ロボティクス学科 創立30周年記念イベント</title>
+    <meta
+      name="description"
+      content="立命館大学ロボティクス学科 創立30周年記念イベントの参加登録ページです。"
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/config.js"></script>
+    <script type="module" src="./assets/site.js"></script>
+  </head>
+  <body class="site-shell" data-page="register">
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">30</div>
+          <div class="brand-copy">
+            <span class="brand-name" data-event-name>立命館大学ロボティクス学科 創立30周年記念イベント</span>
+            <span class="brand-sub" data-event-date>開催予定</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="主要ナビゲーション">
+          <a data-nav="home" href="./index.html">トップ</a>
+          <a data-nav="register" href="./register.html">参加登録</a>
+          <a data-nav="donate" href="./donate.html">寄付案内</a>
+          <a data-nav="admin" href="./admin.html">管理画面</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="container">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h1 class="section-title">参加登録</h1>
+              <p class="section-note">
+                こちらのフォームで受け付けた情報は Supabase に保存され、管理者のみが確認できます。内容は仮項目ですので、後から差し替えできます。
+              </p>
+            </div>
+          </div>
+
+          <div class="form-wrap">
+            <form id="registration-form" class="panel">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="full_name">氏名 <small>必須</small></label>
+                  <input id="full_name" name="full_name" type="text" required placeholder="山田 太郎" />
+                </div>
+                <div class="field">
+                  <label for="affiliation">所属</label>
+                  <input id="affiliation" name="affiliation" type="text" placeholder="立命館大学 ロボティクス学科 卒業生" />
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="email">メールアドレス <small>必須</small></label>
+                    <input id="email" name="email" type="email" required placeholder="example@ritsumei.ac.jp" />
+                  </div>
+                  <div class="field">
+                    <label for="phone">電話番号</label>
+                    <input id="phone" name="phone" type="tel" placeholder="090-1234-5678" />
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="attendance_type">参加方法 <small>必須</small></label>
+                    <select id="attendance_type" name="attendance_type" required>
+                      <option value="">選択してください</option>
+                      <option value="会場参加">会場参加</option>
+                      <option value="オンライン">オンライン</option>
+                      <option value="未定">未定</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="dietary_restrictions">食事制限・配慮事項</label>
+                    <input
+                      id="dietary_restrictions"
+                      name="dietary_restrictions"
+                      type="text"
+                      placeholder="アレルギー、ベジタリアン、その他配慮事項"
+                    />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="message">連絡事項</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    placeholder="出欠に関する補足、同伴者の有無、運営へのメッセージなど"
+                  ></textarea>
+                </div>
+                <label class="checkline">
+                  <input id="consent" name="consent" type="checkbox" required />
+                  <span>
+                    入力した個人情報をイベント運営のために利用することに同意します。登録情報は管理者のみが確認します。
+                  </span>
+                </label>
+                <button id="registration-submit" class="button" type="submit">参加登録を送信</button>
+                <div id="registration-status" class="status hidden" role="status" aria-live="polite"></div>
+              </div>
+            </form>
+
+            <aside class="side-stack">
+              <div class="stat">
+                <div class="stat-label">イベント名</div>
+                <div class="stat-value" data-event-name>立命館大学ロボティクス学科 創立30周年記念イベント</div>
+                <p>詳細が決まり次第、ここに日時や会場の情報を追加します。</p>
+              </div>
+              <div class="stat">
+                <div class="stat-label">登録の扱い</div>
+                <div class="stat-value">管理者だけが閲覧</div>
+                <p>登録データは一般公開せず、運営用の管理画面でのみ確認できるように設定します。</p>
+              </div>
+              <div class="stat">
+                <div class="stat-label">次の案内</div>
+                <div class="stat-value">確認連絡</div>
+                <p>運営側から必要に応じてメールでご連絡する想定です。</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>© <span data-year></span> 立命館大学ロボティクス学科 創立30周年記念イベント</div>
+        <div>お問い合わせ: <a data-contact-email-link href="mailto:robotics30th@example.ac.jp"><span data-contact-email>robotics30th@example.ac.jp</span></a></div>
+      </div>
+    </footer>
+  </body>
+</html>
