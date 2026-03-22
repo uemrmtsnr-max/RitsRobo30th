@@ -2,6 +2,10 @@
 
 このリポジトリは、イベント向けの静的サイト一式です。
 
+公開URL:
+
+- https://uemrmtsnr-max.github.io/RitsRobo30th/
+
 ## できること
 
 - トップページ
