@@ -55,6 +55,13 @@ create policy "allow admin asset select"
     auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
 
+drop policy if exists "allow anon asset select" on public.uploaded_assets;
+create policy "allow anon asset select"
+  on public.uploaded_assets
+  for select
+  to anon
+  using (true);
+
 drop policy if exists "allow admin asset insert" on public.uploaded_assets;
 create policy "allow admin asset insert"
   on public.uploaded_assets
@@ -63,6 +70,13 @@ create policy "allow admin asset insert"
   with check (
     auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
+
+drop policy if exists "allow anon asset insert" on public.uploaded_assets;
+create policy "allow anon asset insert"
+  on public.uploaded_assets
+  for insert
+  to anon
+  with check (true);
 
 create table if not exists public.page_change_requests (
   id uuid primary key default gen_random_uuid(),
@@ -86,6 +100,13 @@ create policy "allow admin request select"
     auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
 
+drop policy if exists "allow anon request select" on public.page_change_requests;
+create policy "allow anon request select"
+  on public.page_change_requests
+  for select
+  to anon
+  using (true);
+
 drop policy if exists "allow admin request insert" on public.page_change_requests;
 create policy "allow admin request insert"
   on public.page_change_requests
@@ -94,6 +115,13 @@ create policy "allow admin request insert"
   with check (
     auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
+
+drop policy if exists "allow anon request insert" on public.page_change_requests;
+create policy "allow anon request insert"
+  on public.page_change_requests
+  for insert
+  to anon
+  with check (true);
 
 drop policy if exists "allow admin request update" on public.page_change_requests;
 create policy "allow admin request update"
@@ -106,6 +134,14 @@ create policy "allow admin request update"
   with check (
     auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
+
+drop policy if exists "allow anon request update" on public.page_change_requests;
+create policy "allow anon request update"
+  on public.page_change_requests
+  for update
+  to anon
+  using (true)
+  with check (true);
 
 insert into storage.buckets (id, name, public)
 values ('ritsrobo-assets', 'ritsrobo-assets', false)
@@ -121,6 +157,13 @@ create policy "allow admin storage select"
     and auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
 
+drop policy if exists "allow anon storage select" on storage.objects;
+create policy "allow anon storage select"
+  on storage.objects
+  for select
+  to anon
+  using (bucket_id = 'ritsrobo-assets');
+
 drop policy if exists "allow admin storage insert" on storage.objects;
 create policy "allow admin storage insert"
   on storage.objects
@@ -130,6 +173,13 @@ create policy "allow admin storage insert"
     bucket_id = 'ritsrobo-assets'
     and auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
+
+drop policy if exists "allow anon storage insert" on storage.objects;
+create policy "allow anon storage insert"
+  on storage.objects
+  for insert
+  to anon
+  with check (bucket_id = 'ritsrobo-assets');
 
 drop policy if exists "allow admin storage update" on storage.objects;
 create policy "allow admin storage update"
@@ -144,3 +194,11 @@ create policy "allow admin storage update"
     bucket_id = 'ritsrobo-assets'
     and auth.jwt() ->> 'email' = any (array['YOUR_ADMIN_EMAIL@example.com'])
   );
+
+drop policy if exists "allow anon storage update" on storage.objects;
+create policy "allow anon storage update"
+  on storage.objects
+  for update
+  to anon
+  using (bucket_id = 'ritsrobo-assets')
+  with check (bucket_id = 'ritsrobo-assets');

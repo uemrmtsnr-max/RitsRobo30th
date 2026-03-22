@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>更新用ページ | 立命館大学ロボティクス学科 創立30周年記念イベント</title>
     <meta name="description" content="サイト更新専用のページです。index からはリンクしません。" />
+    <meta name="robots" content="noindex,nofollow" />
     <link rel="stylesheet" href="./assets/styles.css" />
     <script src="./assets/config.js"></script>
     <script type="module" src="./assets/site.js"></script>
@@ -24,7 +25,6 @@
           <a data-nav="home" href="./index.html">トップ</a>
           <a data-nav="register" href="./register.html">参加登録</a>
           <a data-nav="donate" href="./donate.html">寄付案内</a>
-          <a data-nav="admin" href="./admin.html">管理画面</a>
         </nav>
       </div>
     </header>
@@ -43,23 +43,7 @@
           <div id="update-status" class="status hidden" role="status" aria-live="polite"></div>
         </section>
 
-        <section id="update-login-card" class="panel">
-          <h2 class="panel-title">ログイン</h2>
-          <p style="margin-top: 12px;">更新権限を持つアカウントで入室してください。</p>
-          <form id="update-login-form" class="form-grid" style="margin-top: 18px; max-width: 520px;">
-            <div class="field">
-              <label for="update-email">メールアドレス</label>
-              <input id="update-email" type="email" autocomplete="username" placeholder="admin@example.com" />
-            </div>
-            <div class="field">
-              <label for="update-password">パスワード</label>
-              <input id="update-password" type="password" autocomplete="current-password" placeholder="パスワード" />
-            </div>
-            <button class="button" type="submit">ログイン</button>
-          </form>
-        </section>
-
-        <section id="update-panel" class="section panel" hidden>
+        <section id="update-panel" class="section panel">
           <div class="admin-toolbar">
             <div class="toolbar-group">
               <h2 class="panel-title" style="margin-right: 8px;">ファイル管理</h2>
@@ -67,7 +51,6 @@
             </div>
             <div class="toolbar-group">
               <button id="reload-assets" class="button-secondary" type="button">再読み込み</button>
-              <a class="button-ghost" href="./admin.html">管理画面へ戻る</a>
             </div>
           </div>
 
@@ -115,11 +98,10 @@
                 <div class="field">
                   <label for="request-page">対象ページ</label>
                   <select id="request-page" name="request-page">
-                    <option value="index">トップページ</option>
-                    <option value="register">参加登録ページ</option>
-                    <option value="donate">寄付案内ページ</option>
-                    <option value="admin">管理画面</option>
-                    <option value="update">更新用ページ</option>
+                    <option value="index">トップ</option>
+                    <option value="register">登録</option>
+                    <option value="donate">寄付</option>
+                    <option value="update">更新</option>
                   </select>
                 </div>
                 <div class="field">

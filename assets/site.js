@@ -3,7 +3,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const config = window.SITE_CONFIG ?? {};
 const state = {
   supabase: null,
-  session: null,
   rows: [],
   assets: [],
   requests: []
@@ -499,15 +498,12 @@ async function initUpdatePage() {
   const supabase = getSupabase();
   if (!supabase) return;
 
-  const loginCard = $("#update-login-card");
   const panel = $("#update-panel");
   const status = $("#update-status");
-  const form = $("#update-login-form");
   const uploadForm = $("#asset-upload-form");
   const requestForm = $("#change-request-form");
   const reloadAssets = $("#reload-assets");
   const reloadRequests = $("#reload-requests");
-  const signOutButton = $("#update-sign-out");
   const assetFilter = $("#asset-filter");
   const requestFilter = $("#request-filter");
   const assetBucket = config.storageBucket || "ritsrobo-assets";
@@ -567,49 +563,12 @@ async function initUpdatePage() {
     return filtered;
   }
 
-  async function ensureAdmin() {
-    const { data } = await supabase.auth.getSession();
-    state.session = data.session;
-    const email = data.session?.user?.email || "";
-    if (!data.session) {
-      loginCard.hidden = false;
-      panel.hidden = true;
-      return false;
-    }
-    if (!adminEmailAllowed(email)) {
-      await supabase.auth.signOut();
-      setStatus(status, "error", "このアカウントは更新権限に含まれていません。");
-      status.classList.remove("hidden");
-      loginCard.hidden = false;
-      panel.hidden = true;
-      return false;
-    }
-    loginCard.hidden = true;
-    panel.hidden = false;
-    return true;
-  }
-
   async function refreshAll() {
     await loadAssets();
     await loadRequests();
   }
-
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const email = String($("#update-email")?.value || "").trim();
-    const password = String($("#update-password")?.value || "").trim();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setStatus(status, "error", `ログインできませんでした。${error.message}`);
-      status.classList.remove("hidden");
-      return;
-    }
-    setStatus(status, "success", "更新ページへ入室しました。");
-    status.classList.remove("hidden");
-    if (await ensureAdmin()) {
-      await refreshAll();
-    }
-  });
+  panel.hidden = false;
+  await refreshAll();
 
   uploadForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -642,7 +601,7 @@ async function initUpdatePage() {
         file_name: file.name,
         mime_type: file.type || null,
         size_bytes: file.size,
-        uploaded_by: state.session?.user?.email || null
+        uploaded_by: null
       }
     ]);
 
@@ -677,7 +636,7 @@ async function initUpdatePage() {
         page_name: pageName || "index",
         request_title: title,
         request_body: body,
-        requested_by: requester || state.session?.user?.email || null,
+        requested_by: requester || null,
         status: statusValue
       }
     ]);
@@ -716,16 +675,6 @@ async function initUpdatePage() {
   requestFilter?.addEventListener("input", async () => {
     await loadRequests();
   });
-
-  supabase.auth.onAuthStateChange(async () => {
-    if (await ensureAdmin()) {
-      await refreshAll();
-    }
-  });
-
-  if (await ensureAdmin()) {
-    await refreshAll();
-  }
 }
 
 function wireDonationLink() {
