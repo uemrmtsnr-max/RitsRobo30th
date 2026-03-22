@@ -6,6 +6,10 @@ window.SITE_CONFIG = {
   venueName: "立命館大学キャンパス内 会場調整中",
   donationUrl: "https://www.ritsumei.ac.jp/giving/125th/",
   contactEmail: "robotics30th@example.ac.jp",
+  siteSlug: "RitsRobo30th",
+  storageBucket: "ritsrobo-assets",
+  assetIndexTable: "uploaded_assets",
+  requestLogTable: "page_change_requests",
   supabaseUrl: "https://YOUR-PROJECT.supabase.co",
   supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
   adminEmails: ["YOUR_ADMIN_EMAIL@example.com"]

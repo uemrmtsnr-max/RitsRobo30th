@@ -17,6 +17,7 @@
 - `register.html` 参加登録ページ
 - `donate.html` 寄付案内ページ
 - `admin.html` 管理画面
+- `update.html` 更新専用ページ
 - `assets/` 共通 CSS と JavaScript
 - `supabase/schema.sql` データベース定義
 
@@ -30,6 +31,9 @@
    - `supabaseUrl`
    - `supabaseAnonKey`
    - `adminEmails`
+   - `storageBucket`
+   - `assetIndexTable`
+   - `requestLogTable`
 4. Supabase Auth で管理者アカウントを作成します。
 
 ### 2. ホスティングに載せる
@@ -45,6 +49,7 @@
 ### 3. 管理画面の注意
 
 - `admin.html` は Supabase Auth でログインしたうえで、`adminEmails` に含まれるアドレスだけが閲覧できます。
+- `update.html` は index からはリンクしません。直接URLを知っている人だけが入れる更新専用ページです。
 - 登録データは一般公開しません。
 - さらに厳密にするなら、Supabase の Auth 設定で許可するリダイレクト URL を公開先ドメインに合わせて設定してください。
 
@@ -55,6 +60,17 @@
 - `https://www.ritsumei.ac.jp/giving/125th/`
 
 必要に応じて、大学側の案内に合わせてリンク先を変更してください。
+
+## 更新ページ
+
+`update.html` では次の操作ができます。
+
+- ファイルのアップロード
+- アップロード済みファイルとフォルダの一覧確認
+- ページ修正リクエストの保存
+- リクエストログの確認
+
+保存先は Supabase の `ritsrobo-assets` バケットと、`uploaded_assets` / `page_change_requests` テーブルです。
 
 ## 仮文言について
 

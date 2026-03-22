@@ -4,7 +4,9 @@ const config = window.SITE_CONFIG ?? {};
 const state = {
   supabase: null,
   session: null,
-  rows: []
+  rows: [],
+  assets: [],
+  requests: []
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -401,6 +403,331 @@ async function initAdminPage() {
   await showAuthorizedView();
 }
 
+function normalizeFolderPath(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (!value) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  let unitIndex = 0;
+  let size = value;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+  return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function renderAssetTree(items) {
+  const root = $("#asset-tree");
+  const empty = $("#asset-empty");
+  if (!root) return;
+
+  root.innerHTML = "";
+  if (!items.length) {
+    if (empty) empty.hidden = false;
+    return;
+  }
+  if (empty) empty.hidden = true;
+
+  const groups = new Map();
+  for (const item of items) {
+    const key = item.folder_path || "";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+
+  const sortedFolders = [...groups.keys()].sort((a, b) => a.localeCompare(b, "ja"));
+  for (const folder of sortedFolders) {
+    const card = document.createElement("section");
+    card.className = "note";
+    const heading = document.createElement("h3");
+    heading.textContent = folder || "ルート";
+    card.appendChild(heading);
+
+    const list = document.createElement("ul");
+    list.style.margin = "0";
+    list.style.paddingLeft = "18px";
+    const children = groups.get(folder).sort((a, b) => a.file_name.localeCompare(b.file_name, "ja"));
+    for (const item of children) {
+      const li = document.createElement("li");
+      li.textContent = `${item.file_name} (${formatBytes(item.size_bytes)})`;
+      list.appendChild(li);
+    }
+    card.appendChild(list);
+    root.appendChild(card);
+  }
+}
+
+function renderRequestLog(items) {
+  const tbody = $("#request-log-body");
+  const empty = $("#request-empty");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+  if (!items.length) {
+    if (empty) empty.hidden = false;
+    return;
+  }
+  if (empty) empty.hidden = true;
+
+  for (const item of items) {
+    const tr = document.createElement("tr");
+    const cols = [
+      item.created_at ? new Date(item.created_at).toLocaleString("ja-JP") : "-",
+      item.page_name || "-",
+      item.request_title || "-",
+      item.request_body || "-",
+      item.requested_by || "-",
+      item.status || "-"
+    ];
+    for (const value of cols) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+async function initUpdatePage() {
+  const supabase = getSupabase();
+  if (!supabase) return;
+
+  const loginCard = $("#update-login-card");
+  const panel = $("#update-panel");
+  const status = $("#update-status");
+  const form = $("#update-login-form");
+  const uploadForm = $("#asset-upload-form");
+  const requestForm = $("#change-request-form");
+  const reloadAssets = $("#reload-assets");
+  const reloadRequests = $("#reload-requests");
+  const signOutButton = $("#update-sign-out");
+  const assetFilter = $("#asset-filter");
+  const requestFilter = $("#request-filter");
+  const assetBucket = config.storageBucket || "ritsrobo-assets";
+  const requestTable = config.requestLogTable || "page_change_requests";
+  const assetIndexTable = config.assetIndexTable || "uploaded_assets";
+
+  async function loadAssets() {
+    const { data, error } = await supabase
+      .from(assetIndexTable)
+      .select("*")
+      .order("folder_path", { ascending: true })
+      .order("file_name", { ascending: true });
+
+    if (error) {
+      setStatus(status, "error", `ファイル一覧の取得に失敗しました。${error.message}`);
+      status.classList.remove("hidden");
+      return [];
+    }
+
+    const filterText = String(assetFilter?.value || "").trim().toLowerCase();
+    const filtered = !filterText
+      ? data ?? []
+      : (data ?? []).filter((item) => {
+          const haystack = [item.path, item.folder_path, item.file_name].join(" ").toLowerCase();
+          return haystack.includes(filterText);
+        });
+
+    state.assets = filtered;
+    renderAssetTree(filtered);
+    return filtered;
+  }
+
+  async function loadRequests() {
+    const { data, error } = await supabase
+      .from(requestTable)
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setStatus(status, "error", `リクエスト一覧の取得に失敗しました。${error.message}`);
+      status.classList.remove("hidden");
+      return [];
+    }
+
+    const filterText = String(requestFilter?.value || "").trim().toLowerCase();
+    const filtered = !filterText
+      ? data ?? []
+      : (data ?? []).filter((item) => {
+          const haystack = [item.page_name, item.request_title, item.request_body, item.requested_by, item.status]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(filterText);
+        });
+
+    state.requests = filtered;
+    renderRequestLog(filtered);
+    return filtered;
+  }
+
+  async function ensureAdmin() {
+    const { data } = await supabase.auth.getSession();
+    state.session = data.session;
+    const email = data.session?.user?.email || "";
+    if (!data.session) {
+      loginCard.hidden = false;
+      panel.hidden = true;
+      return false;
+    }
+    if (!adminEmailAllowed(email)) {
+      await supabase.auth.signOut();
+      setStatus(status, "error", "このアカウントは更新権限に含まれていません。");
+      status.classList.remove("hidden");
+      loginCard.hidden = false;
+      panel.hidden = true;
+      return false;
+    }
+    loginCard.hidden = true;
+    panel.hidden = false;
+    return true;
+  }
+
+  async function refreshAll() {
+    await loadAssets();
+    await loadRequests();
+  }
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = String($("#update-email")?.value || "").trim();
+    const password = String($("#update-password")?.value || "").trim();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setStatus(status, "error", `ログインできませんでした。${error.message}`);
+      status.classList.remove("hidden");
+      return;
+    }
+    setStatus(status, "success", "更新ページへ入室しました。");
+    status.classList.remove("hidden");
+    if (await ensureAdmin()) {
+      await refreshAll();
+    }
+  });
+
+  uploadForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const fileInput = $("#asset-file");
+    const folderInput = $("#asset-folder");
+    const file = fileInput?.files?.[0];
+    if (!file) {
+      setStatus(status, "error", "アップロードするファイルを選んでください。");
+      status.classList.remove("hidden");
+      return;
+    }
+
+    const folderPath = normalizeFolderPath(folderInput?.value || "");
+    const targetPath = folderPath ? `${folderPath}/${file.name}` : file.name;
+    const { error: uploadError } = await supabase.storage.from(assetBucket).upload(targetPath, file, {
+      upsert: true,
+      contentType: file.type || "application/octet-stream"
+    });
+
+    if (uploadError) {
+      setStatus(status, "error", `アップロードに失敗しました。${uploadError.message}`);
+      status.classList.remove("hidden");
+      return;
+    }
+
+    const { error: indexError } = await supabase.from(assetIndexTable).upsert([
+      {
+        path: targetPath,
+        folder_path: folderPath,
+        file_name: file.name,
+        mime_type: file.type || null,
+        size_bytes: file.size,
+        uploaded_by: state.session?.user?.email || null
+      }
+    ]);
+
+    if (indexError) {
+      setStatus(status, "error", `インデックス保存に失敗しました。${indexError.message}`);
+      status.classList.remove("hidden");
+      return;
+    }
+
+    uploadForm.reset();
+    setStatus(status, "success", `アップロードしました。${targetPath}`);
+    status.classList.remove("hidden");
+    await loadAssets();
+  });
+
+  requestForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const pageName = String($("#request-page")?.value || "").trim();
+    const title = String($("#request-title")?.value || "").trim();
+    const body = String($("#request-body")?.value || "").trim();
+    const requester = String($("#requester")?.value || "").trim();
+    const statusValue = String($("#request-status")?.value || "open").trim();
+
+    if (!title || !body) {
+      setStatus(status, "error", "修正リクエストのタイトルと本文は必須です。");
+      status.classList.remove("hidden");
+      return;
+    }
+
+    const { error } = await supabase.from(requestTable).insert([
+      {
+        page_name: pageName || "index",
+        request_title: title,
+        request_body: body,
+        requested_by: requester || state.session?.user?.email || null,
+        status: statusValue
+      }
+    ]);
+
+    if (error) {
+      setStatus(status, "error", `リクエストの保存に失敗しました。${error.message}`);
+      status.classList.remove("hidden");
+      return;
+    }
+
+    requestForm.reset();
+    setStatus(status, "success", "修正リクエストを保存しました。");
+    status.classList.remove("hidden");
+    await loadRequests();
+  });
+
+  reloadAssets?.addEventListener("click", async () => {
+    await loadAssets();
+  });
+
+  reloadRequests?.addEventListener("click", async () => {
+    await loadRequests();
+  });
+
+  signOutButton?.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    state.session = null;
+    loginCard.hidden = false;
+    panel.hidden = true;
+  });
+
+  assetFilter?.addEventListener("input", async () => {
+    await loadAssets();
+  });
+
+  requestFilter?.addEventListener("input", async () => {
+    await loadRequests();
+  });
+
+  supabase.auth.onAuthStateChange(async () => {
+    if (await ensureAdmin()) {
+      await refreshAll();
+    }
+  });
+
+  if (await ensureAdmin()) {
+    await refreshAll();
+  }
+}
+
 function wireDonationLink() {
   $$("[data-donation-url]").forEach((link) => {
     link.href = config.donationUrl || "https://www.ritsumei.ac.jp/giving/125th/";
@@ -414,3 +741,4 @@ const page = document.body.dataset.page;
 if (page === "home") initHomePage();
 if (page === "register") initRegisterPage();
 if (page === "admin") initAdminPage();
+if (page === "update") initUpdatePage();

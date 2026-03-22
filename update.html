@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>更新用ページ | 立命館大学ロボティクス学科 創立30周年記念イベント</title>
+    <meta name="description" content="サイト更新専用のページです。index からはリンクしません。" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/config.js"></script>
+    <script type="module" src="./assets/site.js"></script>
+  </head>
+  <body class="site-shell" data-page="update">
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">30</div>
+          <div class="brand-copy">
+            <span class="brand-name" data-event-name>立命館大学ロボティクス学科 創立30周年記念イベント</span>
+            <span class="brand-sub">更新用ページ</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="主要ナビゲーション">
+          <a data-nav="home" href="./index.html">トップ</a>
+          <a data-nav="register" href="./register.html">参加登録</a>
+          <a data-nav="donate" href="./donate.html">寄付案内</a>
+          <a data-nav="admin" href="./admin.html">管理画面</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="container">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h1 class="section-title">更新専用ページ</h1>
+              <p class="section-note">
+                このページは index からはリンクしません。ファイルのアップロード、フォルダの見える化、ページ修正リクエストの保存と履歴確認をここに集約します。
+              </p>
+            </div>
+          </div>
+          <div id="update-status" class="status hidden" role="status" aria-live="polite"></div>
+        </section>
+
+        <section id="update-login-card" class="panel">
+          <h2 class="panel-title">ログイン</h2>
+          <p style="margin-top: 12px;">更新権限を持つアカウントで入室してください。</p>
+          <form id="update-login-form" class="form-grid" style="margin-top: 18px; max-width: 520px;">
+            <div class="field">
+              <label for="update-email">メールアドレス</label>
+              <input id="update-email" type="email" autocomplete="username" placeholder="admin@example.com" />
+            </div>
+            <div class="field">
+              <label for="update-password">パスワード</label>
+              <input id="update-password" type="password" autocomplete="current-password" placeholder="パスワード" />
+            </div>
+            <button class="button" type="submit">ログイン</button>
+          </form>
+        </section>
+
+        <section id="update-panel" class="section panel" hidden>
+          <div class="admin-toolbar">
+            <div class="toolbar-group">
+              <h2 class="panel-title" style="margin-right: 8px;">ファイル管理</h2>
+              <input id="asset-filter" type="search" placeholder="ファイル名やフォルダで絞り込み" />
+            </div>
+            <div class="toolbar-group">
+              <button id="reload-assets" class="button-secondary" type="button">再読み込み</button>
+              <a class="button-ghost" href="./admin.html">管理画面へ戻る</a>
+            </div>
+          </div>
+
+          <form id="asset-upload-form" class="form-grid">
+            <div class="grid-2">
+              <div class="field">
+                <label for="asset-folder">保存フォルダ</label>
+                <input id="asset-folder" type="text" placeholder="pages/home" />
+              </div>
+              <div class="field">
+                <label for="asset-file">アップロードするファイル</label>
+                <input id="asset-file" type="file" />
+              </div>
+            </div>
+            <button class="button" type="submit">ファイルをアップロード</button>
+          </form>
+
+          <div class="section" style="margin-top: 18px;">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title" style="font-size: 1.4rem;">アップロード済みファイルとフォルダ</h3>
+                <p class="section-note">Supabase Storage に置いた内容を、フォルダ単位で見られるようにしています。</p>
+              </div>
+            </div>
+            <div id="asset-tree" class="grid-2"></div>
+            <div id="asset-empty" class="callout" hidden>
+              <p>まだアップロード済みファイルはありません。</p>
+            </div>
+          </div>
+
+          <div class="section" style="margin-top: 26px;">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">ページ修正リクエスト</h2>
+                <p class="section-note">どのページをどう直したいかを書いて保存できます。履歴は下の表で確認できます。</p>
+              </div>
+              <div class="toolbar-group">
+                <input id="request-filter" type="search" placeholder="リクエストを絞り込み" />
+                <button id="reload-requests" class="button-secondary" type="button">再読み込み</button>
+              </div>
+            </div>
+
+            <form id="change-request-form" class="form-grid">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="request-page">対象ページ</label>
+                  <select id="request-page" name="request-page">
+                    <option value="index">トップページ</option>
+                    <option value="register">参加登録ページ</option>
+                    <option value="donate">寄付案内ページ</option>
+                    <option value="admin">管理画面</option>
+                    <option value="update">更新用ページ</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="request-status">ステータス</label>
+                  <select id="request-status" name="request-status">
+                    <option value="open">未対応</option>
+                    <option value="in_progress">対応中</option>
+                    <option value="done">完了</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="request-title">件名</label>
+                <input id="request-title" type="text" placeholder="例: トップページの参加登録ボタン文言を変更" />
+              </div>
+              <div class="field">
+                <label for="request-body">修正したい内容</label>
+                <textarea id="request-body" placeholder="どの見出し、画像、リンク、文章をどう直したいかを書いてください。"></textarea>
+              </div>
+              <div class="field">
+                <label for="requester">依頼者</label>
+                <input id="requester" type="text" placeholder="担当者名やメールアドレス" />
+              </div>
+              <button class="button" type="submit">リクエストを保存</button>
+            </form>
+
+            <div class="table-wrap" style="margin-top: 18px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>日時</th>
+                    <th>対象</th>
+                    <th>件名</th>
+                    <th>本文</th>
+                    <th>依頼者</th>
+                    <th>状態</th>
+                  </tr>
+                </thead>
+                <tbody id="request-log-body"></tbody>
+              </table>
+            </div>
+            <div id="request-empty" class="callout" style="margin-top: 16px;" hidden>
+              <p>まだ修正リクエストはありません。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>© <span data-year></span> 立命館大学ロボティクス学科 創立30周年記念イベント</div>
+        <div>このページは index からは非表示です。</div>
+      </div>
+    </footer>
+  </body>
+</html>
